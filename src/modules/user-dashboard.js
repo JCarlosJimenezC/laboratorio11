@@ -2,7 +2,6 @@ class UserDashboard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.sessionTimeout = null;
   }
 
   connectedCallback() {
@@ -27,38 +26,29 @@ class UserDashboard extends HTMLElement {
     });
   }
 
-  handleGreeting(event) {
-    const { name, timestamp } = event.detail;
-    
-    console.log(`¡Hola! ${name} saludó a las ${timestamp.toLocaleTimeString()}`);
-    
-    // Activar la advertencia
-    this.setAttribute('show-warning', 'true');
-    this.updateWarningState();
-    
-    // Simular expiración de sesión después de 5 segundos
-    if (this.sessionTimeout) {
-      clearTimeout(this.sessionTimeout);
-    }
-    
-    this.sessionTimeout = setTimeout(() => {
-      this.removeAttribute('show-warning');
-      this.updateWarningState();
-    }, 5000);
-  }
+ handleGreeting(event) {
+  const { name, timestamp } = event.detail;
+  console.log(`¡Hola! ${name} saludó a las ${timestamp.toLocaleTimeString()}`);
+  
+  // Al saludar → sesión activa
+  this.setAttribute('show-warning', 'true');
+  this.updateWarningState();
+}
 
-  updateWarningState() {
-    const warningBadge = this.querySelector('warning-badge');
-    if (warningBadge) {
-      if (this.hasAttribute('show-warning')) {
-        warningBadge.setAttribute('pulsing', '');
-        warningBadge.setAttribute('message', 'Sesión por expirar');
-      } else {
-        warningBadge.removeAttribute('pulsing');
-        warningBadge.setAttribute('message', 'Sesión activa');
-      }
+updateWarningState() {
+  const warningBadge = this.querySelector('warning-badge');
+  if (warningBadge) {
+    if (this.hasAttribute('show-warning')) {
+      // Sesión activa: verde, sin pulso
+      warningBadge.removeAttribute('pulsing');
+      warningBadge.setAttribute('message', 'Sesión activa');
+    } else {
+      // Estado inicial: rojo, pulsando
+      warningBadge.setAttribute('pulsing', '');
+      warningBadge.setAttribute('message', 'Sesión por expirar');
     }
   }
+}
 
   render() {
     this.shadowRoot.innerHTML = `
